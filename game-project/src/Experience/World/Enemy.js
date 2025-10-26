@@ -1,4 +1,4 @@
-// Enemy.js (Vite/ESM compatible, robusto para SkinnedMesh y velocidad variable)
+// Enemy.js (Vite/ESM compatible, robusto para SkinnedMesh y visibilidad)
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js'
@@ -14,48 +14,117 @@ export default class Enemy {
         this.baseSpeed = 1.0
         this.speed = this.baseSpeed
         this.debug = debug
-        this.isGhost = false // será true para los fantasmas
 
         // Sonido de proximidad
         this.proximitySound = new Sound('/sounds/alert2.mp3', { loop: true, volume: 0 })
         this.proximitySound.play()
 
-        // Clonar el modelo para usar animaciones
-        let sourceScene = model.scene || model
-        let sourceClips = model.animations || (this.experience?.resources?.items?.zombieModel?.animations) || []
+        // Guardar referencia original para debug
+        this._originalModelPassed = model
 
-        this.model = SkeletonUtils.clone(sourceScene)
+        // Obtener scene y animaciones
+        let sourceScene = null
+        let sourceClips = []
 
+        if (!model) {
+            console.error('[Enemy] No se pasó "model" al constructor.')
+            return
+        } else if (model.scene && model.scene.isObject3D) {
+            sourceScene = model.scene
+            sourceClips = model.animations || []
+        } else if (model.isObject3D) {
+            sourceScene = model
+            sourceClips = model.animations || (this.experience?.resources?.items?.zombieModel?.animations) || []
+        } else {
+            sourceScene = model.scene || model
+            sourceClips = model.animations || []
+        }
+
+        if (!sourceScene) {
+            console.error('[Enemy] No se pudo obtener sourceScene del model pasado.')
+            return
+        }
+
+        if (debug) {
+            console.log('[Enemy] Constructor: spawnPos=', position)
+            console.log('[Enemy] Clips disponibles:', sourceClips.length)
+        }
+
+        // Clonar de forma segura
+        try {
+            this.model = SkeletonUtils.clone(sourceScene)
+            if (debug) console.log('[Enemy] Clonado con SkeletonUtils OK')
+        } catch (err) {
+            this.model = sourceScene.clone(true)
+            console.warn('[Enemy] SkeletonUtils.clone falló, usando clone(true).', err)
+        }
+
+        // Prevenir añadir el modelo original a la escena por accidente
+        if (this._originalModelPassed?.scene && this.scene.children.includes(this._originalModelPassed.scene)) {
+            console.warn('[Enemy] ¡El GLTF original ya está en la escena! Usa siempre clones.')
+        }
+
+        // Asegurar visibilidad y sombras
         this.model.traverse((c) => {
-            if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; c.frustumCulled = false; }
-            if (c.isSkinnedMesh && c.skeleton?.bones?.length) c.bind(c.skeleton, c.bindMatrix)
+            if (c.isMesh) {
+                c.castShadow = true
+                c.receiveShadow = true
+                c.visible = true
+                c.frustumCulled = false
+                if (c.material) {
+                    c.material.needsUpdate = true
+                    if (c.material.transparent) {
+                        c.material.transparent = false
+                        c.material.opacity = 1
+                    }
+                }
+            }
+            if (c.isSkinnedMesh) {
+                c.frustumCulled = false
+                if (c.skeleton?.bones?.length > 0) {
+                    c.bind(c.skeleton, c.bindMatrix)
+                }
+            }
         })
 
-        // Contenedor
+        // -------------------------------
+        // Contenedor que seguirá la física
+        // -------------------------------
         this.container = new THREE.Group()
         this.container.position.copy(position)
         this.scene.add(this.container)
         this.container.add(this.model)
-        this.model.position.set(0, 0, 0)
+        this.model.position.set(0, 0, 0) // in-place animation
 
-        // Mixer y animaciones
-        this.mixer = sourceClips.length ? new THREE.AnimationMixer(this.model) : null
+        // Preparar mixer y acciones
+        this.mixer = null
         this.actions = {}
         this.currentAction = null
-        if (this.mixer && sourceClips.length > 0) {
-            const walkClip = sourceClips.find(c => /walk|run/i.test(c.name)) || sourceClips[0]
+
+        const clips = sourceClips.length ? sourceClips : (this._originalModelPassed?.animations || [])
+        if (clips.length > 0) {
+            this.mixer = new THREE.AnimationMixer(this.model)
+
+            const findClip = (names) => names.map(n => n.toLowerCase()).map(n => clips.find(c => c.name.toLowerCase() === n)).find(c => c)
+            const walkClip = findClip(['walk', 'walking', 'idle_walk', 'walkcycle', 'run']) || clips[0]
+
             if (walkClip) {
                 const walkAction = this.mixer.clipAction(walkClip)
                 walkAction.setLoop(THREE.LoopRepeat)
+                walkAction.clampWhenFinished = false
+                walkAction.enabled = true
                 walkAction.play()
+                try { walkAction.setEffectiveWeight(0) } catch { walkAction.weight = 0 }
                 this.actions.walk = walkAction
             }
+
+            if (debug) console.log('[Enemy] Anim clips cargados:', clips.map(c => c.name))
         }
 
         // Física
-        const shape = new CANNON.Sphere(0.5)
         const enemyMaterial = new CANNON.Material('enemyMaterial')
         enemyMaterial.friction = 0.0
+        const shape = new CANNON.Sphere(0.5)
         this.body = new CANNON.Body({
             mass: 5,
             shape,
@@ -63,7 +132,10 @@ export default class Enemy {
             position: new CANNON.Vec3(position.x, position.y, position.z),
             linearDamping: 0.01
         })
-        this.physicsWorld?.addBody(this.body)
+
+        if (!this.physicsWorld) console.warn('[Enemy] physicsWorld no disponible, enemigo será visual solo.')
+        else this.physicsWorld.addBody(this.body)
+
         this.body.sleepSpeedLimit = 0.0
         this.body.wakeUp()
         this.model.userData.physicsBody = this.body
@@ -86,18 +158,24 @@ export default class Enemy {
         }
         if (this.body?.addEventListener) this.body.addEventListener('collide', this._onCollide)
 
+        // Movimiento
         this.turnSpeed = 6.0
         this.moveThreshold = 0.5
-        if (this.debug) console.log('[Enemy] Inicializado en:', position)
+
+        if (debug) console.log('[Enemy] Inicializado OK. Pos:', position)
     }
 
     _setAction(actionName, { fade = 0.18 } = {}) {
         if (!this.mixer || !this.actions[actionName]) return
         const newAction = this.actions[actionName]
         const oldAction = this.currentAction
-        if (oldAction === newAction) return
+        if (oldAction === newAction) {
+            try { newAction.setEffectiveWeight(1) } catch { newAction.weight = 1 }
+            return
+        }
         newAction.enabled = true
         newAction.reset()
+        try { newAction.setEffectiveWeight(1) } catch { newAction.weight = 1 }
         newAction.fadeIn(fade)
         newAction.play()
         if (oldAction) oldAction.fadeOut(fade)
@@ -107,6 +185,7 @@ export default class Enemy {
     update(delta) {
         if (!this.body || !this.playerRef?.body) return
 
+        // Actualizar animación
         this.mixer?.update(delta)
 
         const targetPos = this.playerRef.body.position
@@ -116,31 +195,39 @@ export default class Enemy {
         const dz = targetPos.z - enemyPos.z
         const dist2D = Math.hypot(dx, dz)
 
-        // Para fantasmas, usar this.speed (puede actualizarse desde World.js)
-        const currentSpeed = this.isGhost ? this.speed : this.baseSpeed
-        const nx = dx / dist2D
-        const nz = dz / dist2D
+        this.speed = dist2D < 4 ? 2.5 : this.baseSpeed
+
+        const maxDistance = 10
+        const clampedDistance = Math.min(dist2D, maxDistance)
+        const proximityVolume = 1 - (clampedDistance / maxDistance)
+        this.proximitySound?.setVolume(proximityVolume * 0.8)
 
         if (dist2D > this.moveThreshold) {
-            this.body.velocity.x = nx * currentSpeed
-            this.body.velocity.z = nz * currentSpeed
+            const nx = dx / dist2D
+            const nz = dz / dist2D
+            this.body.velocity.x = nx * this.speed
+            this.body.velocity.z = nz * this.speed
+
             this.actions.walk && this._setAction('walk', { fade: 0.12 })
+
+            // Rotación del contenedor hacia el jugador
             const targetAngle = Math.atan2(nx, nz)
             const qTarget = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, targetAngle, 0))
             this.container.quaternion.slerp(qTarget, Math.min(1, this.turnSpeed * delta))
         } else {
             this.body.velocity.x = 0
             this.body.velocity.z = 0
+            if (this.actions.walk && this.currentAction === this.actions.walk) {
+                try { this.actions.walk.fadeOut(0.12) } catch {}
+                this.currentAction = null
+            }
         }
 
+        // -------------------------------
+        // Forzar in-place animation usando contenedor
+        // -------------------------------
         this.container.position.copy(this.body.position)
-        this.model.position.set(0, 0, 0)
-
-        // Ajustar volumen de proximidad
-        const maxDistance = 10
-        const clampedDistance = Math.min(dist2D, maxDistance)
-        const proximityVolume = 1 - (clampedDistance / maxDistance)
-        this.proximitySound?.setVolume(proximityVolume * 0.8)
+        this.model.position.set(0, 0, 0) // eliminar root motion
     }
 
     destroy() {

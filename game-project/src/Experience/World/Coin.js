@@ -1,4 +1,3 @@
-// Coin.js
 import * as THREE from 'three'
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js'
 
@@ -9,8 +8,9 @@ export default class Coin {
    *   model,           // resource GLTF (this.resources.items.coinModel)
    *   position: THREE.Vector3,
    *   robotRef,        // referencia al robot para comprobación de recogida
-   *   onCollect: fn,   // callback cuando se recoge
-   *   debug = false
+   *   onCollect: fn,   // callback cuando se recoge (se recibe la instancia Coin)
+   *   debug = false,
+   *   role = 'default' // nuevo: role de la moneda
    * }
    */
   constructor(options = {}) {
@@ -20,6 +20,8 @@ export default class Coin {
     this.robotRef = options.robotRef
     this.onCollect = options.onCollect || (() => {})
     this.debug = options.debug || false
+
+    this.role = options.role || 'default' // <-- nuevo
 
     this.group = new THREE.Group()
     this.group.position.copy(this.position)
@@ -31,7 +33,11 @@ export default class Coin {
     this._time = 0
     this.collected = false
 
+    // referencia al posible efecto visual cuando role==='finalPrize'
+    this._finalVisual = null
+
     this._setupModel()
+    this._applyRoleVisual(this.role)
   }
 
   _setupModel() {
@@ -43,6 +49,7 @@ export default class Coin {
         const mesh = new THREE.Mesh(geo, mat)
         mesh.rotation.x = Math.PI / 2
         this.group.add(mesh)
+        this.mesh = mesh
         return
       }
 
@@ -72,12 +79,59 @@ export default class Coin {
       const desiredSize = 0.8 // aproximado
       const scale = desiredSize / maxDim
       cloned.scale.setScalar(scale)
-      cloned.position.y -= (box.min.y * scale) // intentar ajustar al suelo de la moneda
+
+      // Ajuste vertical para que quede flotando sobre su posición base
+      // recalcular bbox tras escalar
+      const box2 = new THREE.Box3().setFromObject(cloned)
+      cloned.position.y -= box2.min.y
 
       this.group.add(cloned)
       this.mesh = cloned
     } catch (err) {
       console.error('Coin._setupModel error:', err)
+    }
+  }
+
+  // expone la posibilidad de cambiar role en tiempo de ejecución
+  setRole(newRole) {
+    if (!newRole || newRole === this.role) return
+    this.role = newRole
+    this._applyRoleVisual(newRole)
+    if (this.debug) console.log(`Coin.setRole -> ahora role = ${this.role}`)
+  }
+
+  _applyRoleVisual(role) {
+    // limpia visual previo si existe
+    if (this._finalVisual) {
+      try { this.group.remove(this._finalVisual) } catch (e) {}
+      this._finalVisual = null
+    }
+
+    if (role === 'finalPrize') {
+      // Añadimos un sutil halo / esfera brillante debajo de la moneda para señalar que es special
+      const s = 0.9
+      const geom = new THREE.RingGeometry(s * 0.8, s, 32)
+      const mat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })
+      // Nota: no forzamos colores; el proyecto puede sobreescribir material si quieres
+      const ring = new THREE.Mesh(geom, mat)
+      ring.rotation.x = -Math.PI / 2
+      ring.position.y = -0.05
+      ring.renderOrder = 999
+      ring.userData.isRoleVisual = true
+
+      // alternativa / extra: un pequeño sprite o esfera emisiva
+      const sphereGeo = new THREE.SphereGeometry(0.12, 12, 12)
+      const sphereMat = new THREE.MeshStandardMaterial({ metalness: 0.8, roughness: 0.1, emissiveIntensity: 1 })
+      const sphere = new THREE.Mesh(sphereGeo, sphereMat)
+      sphere.position.y = 0.15
+      sphere.userData.isRoleVisual = true
+
+      const container = new THREE.Group()
+      container.add(ring)
+      container.add(sphere)
+
+      this.group.add(container)
+      this._finalVisual = container
     }
   }
 
@@ -91,6 +145,12 @@ export default class Coin {
     const y = Math.sin(this._time * this.bobSpeed) * this.bobAmplitude
     this.group.position.y = this.position.y + y
 
+    // si es moneda finalPrize, la animamos un poco distinto (ej: rotación más lenta y pulso)
+    if (this.role === 'finalPrize' && this._finalVisual) {
+      const pulse = 1 + Math.sin(this._time * 3) * 0.08
+      this._finalVisual.scale.setScalar(pulse)
+    }
+
     // check recogida por distancia (si hay robotRef con body o group)
     try {
       const robotPos = (this.robotRef?.body && this.robotRef.body.position) ? this.robotRef.body.position : (this.robotRef?.group?.position)
@@ -100,7 +160,7 @@ export default class Coin {
         const dy = robotPos.y - coinPos.y
         const dz = robotPos.z - coinPos.z
         const distSq = dx*dx + dy*dy + dz*dz
-        const pickupRadius = 2.0 // ajustar si quieres más/menos alcance
+        const pickupRadius = (this.role === 'finalPrize') ? 2.5 : 2.0 // finalPrize un poco más permisiva
         if (distSq <= pickupRadius * pickupRadius) {
           this.collect()
         }
@@ -113,9 +173,9 @@ export default class Coin {
   collect() {
     if (this.collected) return
     this.collected = true
+
     // animación simple antes de borrar (escalado rápido)
     const g = this.group
-    // si tienes gsap en el proyecto, puedes reemplazar por gsap.to(...)
     const duration = 200
     const start = performance.now()
     const startScale = g.scale.clone()
@@ -130,8 +190,8 @@ export default class Coin {
     }
     requestAnimationFrame(tick)
 
-    // callback (ej: play sound, aumentar score)
-    try { this.onCollect(this) } catch (e) {}
+    // callback (ej: play sound, aumentar score) -> devolvemos la instancia
+    try { this.onCollect(this) } catch (e) { if (this.debug) console.warn('onCollect fallo', e) }
   }
 
   destroy() {
