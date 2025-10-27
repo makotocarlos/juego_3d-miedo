@@ -131,7 +131,7 @@ export default class Robot {
         const walkClip = this._getClipByNameOrIndex('Armature.558|[toko_10] walk_1', 4)
         const idleClip = this._getClipByNameOrIndex('Armature.558|[toko_10] idle', 2)
         const runClip  = this._getClipByNameOrIndex('Armature.558|[toko_10] run_1', 5)
-        const jumpClip = this._getClipByNameOrIndex('Jump', 3)
+        const jumpClip = this._getClipByNameOrIndex('Armature.558|[toko_10] run_1', 3)
         const deathClip = this._getClipByNameOrIndex('Death', 1)
         const danceClip = this._getClipByNameOrIndex('Dance', 0)
         const attackClip = this._getClipByNameOrIndex('Combat_Attack_1', null)

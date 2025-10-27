@@ -1,5 +1,15 @@
 export const sources = [
     {
+        "name": "0_lev1",
+        "type": "gltfModel",
+        "path": "/models/toycar/0_lev1.glb"
+    },
+    {
+        "name": "1_lev1",
+        "type": "gltfModel",
+        "path": "/models/toycar/1_lev1.glb"
+    },
+    {
         "name": "bench.001.001_lev1",
         "type": "gltfModel",
         "path": "/models/toycar/bench.001.001_lev1.glb"
@@ -13,16 +23,6 @@ export const sources = [
         "name": "bench_lev1",
         "type": "gltfModel",
         "path": "/models/toycar/bench_lev1.glb"
-    },
-    {
-        "name": "coin_structure_detailed_lev2_lev1",
-        "type": "gltfModel",
-        "path": "/models/toycar/coin_structure_detailed_lev2_lev1.glb"
-    },
-    {
-        "name": "coin_structure_diagonal_lev2_lev1",
-        "type": "gltfModel",
-        "path": "/models/toycar/coin_structure_diagonal_lev2_lev1.glb"
     },
     {
         "name": "cross-column.001.001_lev1",

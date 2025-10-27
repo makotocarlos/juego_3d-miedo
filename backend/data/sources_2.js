@@ -5,11 +5,6 @@ export const sources = [
         "path": "/models/toycar/arm-right.001_lev2.glb"
     },
     {
-        "name": "arm-right.002_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/arm-right.002_lev2.glb"
-    },
-    {
         "name": "arm-right.003_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/arm-right.003_lev2.glb"
@@ -765,14 +760,34 @@ export const sources = [
         "path": "/models/toycar/brick-wall_lev2.glb"
     },
     {
-        "name": "candle-multiple_lev2",
+        "name": "cofre_cofre_0.001_lev2",
         "type": "gltfModel",
-        "path": "/models/toycar/candle-multiple_lev2.glb"
+        "path": "/models/toycar/cofre_cofre_0.001_lev2.glb"
     },
     {
-        "name": "candle_lev2",
+        "name": "cofre_cofre_0.002_lev2",
         "type": "gltfModel",
-        "path": "/models/toycar/candle_lev2.glb"
+        "path": "/models/toycar/cofre_cofre_0.002_lev2.glb"
+    },
+    {
+        "name": "cofre_cofre_0.003_lev2",
+        "type": "gltfModel",
+        "path": "/models/toycar/cofre_cofre_0.003_lev2.glb"
+    },
+    {
+        "name": "cofre_cofre_0.004_lev2",
+        "type": "gltfModel",
+        "path": "/models/toycar/cofre_cofre_0.004_lev2.glb"
+    },
+    {
+        "name": "cofre_cofre_0.005_lev2",
+        "type": "gltfModel",
+        "path": "/models/toycar/cofre_cofre_0.005_lev2.glb"
+    },
+    {
+        "name": "cofre_cofre_0_lev2",
+        "type": "gltfModel",
+        "path": "/models/toycar/cofre_cofre_0_lev2.glb"
     },
     {
         "name": "column-large_lev2",
@@ -880,36 +895,6 @@ export const sources = [
         "path": "/models/toycar/crypt-small_lev2.glb"
     },
     {
-        "name": "debris-wood_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/debris-wood_lev2.glb"
-    },
-    {
-        "name": "debris_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/debris_lev2.glb"
-    },
-    {
-        "name": "detail-bowl_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/detail-bowl_lev2.glb"
-    },
-    {
-        "name": "detail-chalice_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/detail-chalice_lev2.glb"
-    },
-    {
-        "name": "detail-plate_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/detail-plate_lev2.glb"
-    },
-    {
-        "name": "door.001_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/door.001_lev2.glb"
-    },
-    {
         "name": "door.002_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/door.002_lev2.glb"
@@ -928,66 +913,6 @@ export const sources = [
         "name": "door.005_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/door.005_lev2.glb"
-    },
-    {
-        "name": "door_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/door_lev2.glb"
-    },
-    {
-        "name": "fence.001_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/fence.001_lev2.glb"
-    },
-    {
-        "name": "fence.002_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/fence.002_lev2.glb"
-    },
-    {
-        "name": "fence.003_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/fence.003_lev2.glb"
-    },
-    {
-        "name": "fence.004_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/fence.004_lev2.glb"
-    },
-    {
-        "name": "fence.005_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/fence.005_lev2.glb"
-    },
-    {
-        "name": "fence.006_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/fence.006_lev2.glb"
-    },
-    {
-        "name": "fence_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/fence_lev2.glb"
-    },
-    {
-        "name": "fire-basket_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/fire-basket_lev2.glb"
-    },
-    {
-        "name": "grave-border_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/grave-border_lev2.glb"
-    },
-    {
-        "name": "gravestone-bevel_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-bevel_lev2.glb"
-    },
-    {
-        "name": "gravestone-broken_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-broken_lev2.glb"
     },
     {
         "name": "gravestone-cross.001_lev2",
@@ -1020,11 +945,6 @@ export const sources = [
         "path": "/models/toycar/gravestone-cross.006_lev2.glb"
     },
     {
-        "name": "gravestone-cross.007_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.007_lev2.glb"
-    },
-    {
         "name": "gravestone-cross.008_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/gravestone-cross.008_lev2.glb"
@@ -1045,89 +965,9 @@ export const sources = [
         "path": "/models/toycar/gravestone-cross.011_lev2.glb"
     },
     {
-        "name": "gravestone-cross.012_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.012_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.013_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.013_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.014_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.014_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.015_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.015_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.016_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.016_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.017_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.017_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.018_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.018_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.019_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.019_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.020_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.020_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.021_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.021_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.022_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.022_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.023_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.023_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.024_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.024_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.025_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.025_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.026_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.026_lev2.glb"
-    },
-    {
         "name": "gravestone-cross.027_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/gravestone-cross.027_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.028_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.028_lev2.glb"
     },
     {
         "name": "gravestone-cross.029_lev2",
@@ -1135,34 +975,9 @@ export const sources = [
         "path": "/models/toycar/gravestone-cross.029_lev2.glb"
     },
     {
-        "name": "gravestone-cross.030_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.030_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.031_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.031_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.032_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.032_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.033_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.033_lev2.glb"
-    },
-    {
         "name": "gravestone-cross.034_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/gravestone-cross.034_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.035_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.035_lev2.glb"
     },
     {
         "name": "gravestone-cross.036_lev2",
@@ -1170,19 +985,9 @@ export const sources = [
         "path": "/models/toycar/gravestone-cross.036_lev2.glb"
     },
     {
-        "name": "gravestone-cross.043_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.043_lev2.glb"
-    },
-    {
         "name": "gravestone-cross.044_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/gravestone-cross.044_lev2.glb"
-    },
-    {
-        "name": "gravestone-cross.045_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.045_lev2.glb"
     },
     {
         "name": "gravestone-cross.046_lev2",
@@ -1190,29 +995,9 @@ export const sources = [
         "path": "/models/toycar/gravestone-cross.046_lev2.glb"
     },
     {
-        "name": "gravestone-cross.047_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-cross.047_lev2.glb"
-    },
-    {
         "name": "gravestone-cross.048_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/gravestone-cross.048_lev2.glb"
-    },
-    {
-        "name": "gravestone-debris_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/gravestone-debris_lev2.glb"
-    },
-    {
-        "name": "grave_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/grave_lev2.glb"
-    },
-    {
-        "name": "iron-fence-bar_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/iron-fence-bar_lev2.glb"
     },
     {
         "name": "iron-fence-border-column.001_lev2",
@@ -1900,71 +1685,6 @@ export const sources = [
         "path": "/models/toycar/iron-fence-border_lev2.glb"
     },
     {
-        "name": "iron-fence_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/iron-fence_lev2.glb"
-    },
-    {
-        "name": "lantern-candle_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/lantern-candle_lev2.glb"
-    },
-    {
-        "name": "lantern-glass_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/lantern-glass_lev2.glb"
-    },
-    {
-        "name": "leg-left.001_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/leg-left.001_lev2.glb"
-    },
-    {
-        "name": "leg-left.002_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/leg-left.002_lev2.glb"
-    },
-    {
-        "name": "leg-left.003_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/leg-left.003_lev2.glb"
-    },
-    {
-        "name": "leg-left_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/leg-left_lev2.glb"
-    },
-    {
-        "name": "leg-right.001_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/leg-right.001_lev2.glb"
-    },
-    {
-        "name": "leg-right.002_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/leg-right.002_lev2.glb"
-    },
-    {
-        "name": "leg-right.003_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/leg-right.003_lev2.glb"
-    },
-    {
-        "name": "leg-right_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/leg-right_lev2.glb"
-    },
-    {
-        "name": "lid.001_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/lid.001_lev2.glb"
-    },
-    {
-        "name": "lid_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/lid_lev2.glb"
-    },
-    {
         "name": "lightpost-single.001_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/lightpost-single.001_lev2.glb"
@@ -2033,31 +1753,6 @@ export const sources = [
         "name": "pillar-square_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/pillar-square_lev2.glb"
-    },
-    {
-        "name": "pumpkin-carved_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/pumpkin-carved_lev2.glb"
-    },
-    {
-        "name": "pumpkin-tall-carved_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/pumpkin-tall-carved_lev2.glb"
-    },
-    {
-        "name": "pumpkin-tall_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/pumpkin-tall_lev2.glb"
-    },
-    {
-        "name": "pumpkin_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/pumpkin_lev2.glb"
-    },
-    {
-        "name": "road_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/road_lev2.glb"
     },
     {
         "name": "rocks-tall.001_lev2",
@@ -2130,41 +1825,6 @@ export const sources = [
         "path": "/models/toycar/rocks_lev2.glb"
     },
     {
-        "name": "shovel-dirt_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/shovel-dirt_lev2.glb"
-    },
-    {
-        "name": "stone-wall-column_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/stone-wall-column_lev2.glb"
-    },
-    {
-        "name": "stone-wall_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/stone-wall_lev2.glb"
-    },
-    {
-        "name": "torso.002_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/torso.002_lev2.glb"
-    },
-    {
-        "name": "torso_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/torso_lev2.glb"
-    },
-    {
-        "name": "trunk-long_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/trunk-long_lev2.glb"
-    },
-    {
-        "name": "trunk.001_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/trunk.001_lev2.glb"
-    },
-    {
         "name": "trunk.002_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/trunk.002_lev2.glb"
@@ -2173,16 +1833,6 @@ export const sources = [
         "name": "trunk.003_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/trunk.003_lev2.glb"
-    },
-    {
-        "name": "trunk.004_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/trunk.004_lev2.glb"
-    },
-    {
-        "name": "trunk.005_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/trunk.005_lev2.glb"
     },
     {
         "name": "trunk.006_lev2",
@@ -2195,19 +1845,9 @@ export const sources = [
         "path": "/models/toycar/trunk.008_lev2.glb"
     },
     {
-        "name": "trunk.009_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/trunk.009_lev2.glb"
-    },
-    {
         "name": "trunk.010_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/trunk.010_lev2.glb"
-    },
-    {
-        "name": "trunk.015_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/trunk.015_lev2.glb"
     },
     {
         "name": "trunk.019_lev2",
@@ -2223,15 +1863,5 @@ export const sources = [
         "name": "trunk_lev2",
         "type": "gltfModel",
         "path": "/models/toycar/trunk_lev2.glb"
-    },
-    {
-        "name": "urn-round_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/urn-round_lev2.glb"
-    },
-    {
-        "name": "urn-square_lev2",
-        "type": "gltfModel",
-        "path": "/models/toycar/urn-square_lev2.glb"
     }
 ];

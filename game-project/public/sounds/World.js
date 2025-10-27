@@ -166,6 +166,51 @@ export default class World {
     if (this.debug) console.log(`spawnEnemies: se crearon ${this.enemies.length} enemigos`)
   }
 
+  // Nueva función para enemigos de Nivel 2 y 3
+  spawnIntelligentEnemies(count, speedMultiplier = 1.5) {
+    if (!this.robot?.body) { if (this.debug) console.warn(`spawnIntelligentEnemies: robot no listo`); return }
+    const zombieResource = this.resources?.items?.zombieModel;
+    if (!zombieResource) { console.error('spawnIntelligentEnemies: zombieModel no encontrado'); return }
+
+    this.enemies?.forEach(e => e?.destroy?.()); // Limpia enemigos anteriores
+    this.enemies = [];
+
+    const playerPos = this.robot.body.position;
+    const minRadius = 30; // Un poco más lejos para empezar
+    const maxRadius = 50;
+    const defaultSpeed = 2.0; // Define una velocidad base si Enemy.js no la tiene
+
+    for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2; // Distribuirlos un poco
+        const radius = minRadius + Math.random() * (maxRadius - minRadius);
+        const x = playerPos.x + Math.cos(angle) * radius;
+        const z = playerPos.z + Math.sin(angle) * radius;
+        const y = playerPos.y ?? 1.5;
+        const spawnPos = new THREE.Vector3(x, y, z);
+
+        const enemy = new Enemy({
+            scene: this.scene,
+            physicsWorld: this.experience.physics?.world,
+            playerRef: this.robot,
+            model: zombieResource,
+            position: spawnPos,
+            experience: this.experience,
+            debug: this.debug
+        });
+
+        // Marcar como enemigo "inteligente" (opcional) y ajustar velocidad
+        enemy.isIntelligent = true; // Puedes usar esto en Enemy.js si quieres
+        enemy.isGhost = false; // No son fantasmas
+        enemy.speed = (enemy.baseSpeed || defaultSpeed) * speedMultiplier; // Asigna velocidad aumentada
+        enemy.delayActivation = 0.5 + i * 0.2; // Activación rápida
+
+        this.enemies.push(enemy);
+    }
+    if (this.debug) console.log(`spawnIntelligentEnemies: Creados ${this.enemies.length} enemigos rápidos (velocidad x${speedMultiplier})`);
+  }
+
+  
+
   spawnGhost() {
     const zombieResource = this.resources?.items?.zombieModel
     if (!zombieResource || !this.robot?.body) return
@@ -286,9 +331,9 @@ export default class World {
 
   spawnCoin(count = 3) {
     const coinResource = this.resources?.items?.coinModel
-    if (!coinResource || !this.robot?.body) {
-      if (this.debug) console.warn('spawnCoin: coinModel o robot no disponible')
-      return
+    if (this.levelManager.currentLevel != 1) { // Usa != para comparar valor
+      if (this.debug) console.log(`spawnCoin: Ignorado (Nivel ${this.levelManager.currentLevel} no genera monedas)`);
+        return;
     }
 
     const playerPos = this.robot.body.position
@@ -602,89 +647,94 @@ export default class World {
 
   async loadLevel(level) {
     try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-        const apiUrl = `${backendUrl}/api/blocks?level=${level}`;
-        let data;
+      if(this.debug) console.log(`--- Iniciando carga de Nivel ${level} ---`);
 
-        try {
-            const res = await fetch(apiUrl);
-            if (!res.ok) throw new Error('Error desde API');
-            const ct = res.headers.get('content-type') || '';
-            if (!ct.includes('application/json')) {
-                const preview = (await res.text()).slice(0, 120);
-                throw new Error(`Respuesta no-JSON desde API (${apiUrl}): ${preview}`);
-            }
-            data = await res.json();
-            if (this.debug) console.log(`📦 Datos del nivel ${level} cargados desde API`);
-        } catch (error) {
-            if (this.debug) console.warn(`⚠️ No se pudo conectar con el backend. Usando datos locales para nivel ${level}...`, error.message);
-            const publicPath = (p) => {
-                const base = import.meta.env.BASE_URL || '/';
-                return `${base.replace(/\/$/, '')}/${p.replace(/^\//, '')}`;
-            };
-            const localUrl = publicPath('data/toy_car_blocks.json');
-            const localRes = await fetch(localUrl);
-            if (!localRes.ok) throw new Error(`No se pudo cargar ${localUrl} (HTTP ${localRes.status})`);
-            
-            const allBlocks = await localRes.json();
-            const filteredBlocks = allBlocks.filter(b => b.level == level);
-            
-            data = {
-                blocks: filteredBlocks,
-                spawnPoint: { x: -17, y: 1.5, z: -67 }
-            };
-            if(this.debug) console.log(`📦 Datos locales cargados para nivel ${level}, ${filteredBlocks.length} bloques encontrados.`);
-        }
+      // 1. LIMPIAR ESCENA ANTERIOR
+      this.clearCurrentScene(); // clearCurrentScene ya detiene todos los intervalos
 
-        const spawnPoint = data.spawnPoint || { x: 5, y: 1.5, z: 5 };
+      // 2. CARGAR DATOS DEL NIVEL
+      // ... (código de fetch y fallback igual) ...
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      const apiUrl = `${backendUrl}/api/blocks?level=${level}`;
+      let data;
+      try { /* ... fetch ... */ } catch (error) { /* ... fallback ... */ }
 
-        // --- RESET GAME STATE (tu lógica) ---
-        this.points = 0; 
-        this.collectedCoins = 0;
-        if (this.robot) this.robot.points = 0;
-        this.finalPrizeActivated = false;
-        this._finalCoinMade = false;
-        this.defeatTriggered = false;
-        if (this.experience.menu?.setStatus) this.experience.menu.setStatus(`🎖️ Puntos: 0`);
-        // --- FIN RESET ---
+      // Determinar Spawn Point específico por nivel si no está en JSON
+      let defaultSpawn = { x: 0, y: 1.5, z: 0 };
+      if (level == 1) defaultSpawn = { x: -17, y: 1.5, z: -67 };
+      else if (level == 2) defaultSpawn = { x: 5, y: 1.5, z: 5 };
+      else if (level == 3) defaultSpawn = { x: 10, y: 1.5, z: 10 }; // Define un spawn para Nivel 3
+      const spawnPoint = data.spawnPoint || defaultSpawn;
 
-        // --- LOAD BLOCKS (lógica del profesor) ---
-        if (data.blocks && data.blocks.length > 0) {
-            const publicPath = (p) => {
-                const base = import.meta.env.BASE_URL || '/';
-                return `${base.replace(/\/$/, '')}/${p.replace(/^\//, '')}`;
-            };
-            const preciseUrl = publicPath('config/precisePhysicsModels.json');
-            const preciseRes = await fetch(preciseUrl);
-            const preciseModels = await preciseRes.json();
-            // Esta función procesa los bloques y los añade a la escena/físicas
-            this.loader._processBlocks(data.blocks, preciseModels);
-        } else {
-            if (this.debug) console.warn(`No se encontraron bloques (blocks) para el nivel ${level} en los datos cargados.`);
-        }
-        // --- FIN LOAD BLOCKS ---
 
-        // --- RESET PLAYER ---
-        this.resetRobotPosition(spawnPoint);
-        if (this.debug) console.log(`✅ Nivel ${level} cargado con spawn en`, spawnPoint);
+      // 3. RESETEAR ESTADO DEL JUEGO PARA EL NUEVO NIVEL
+      this.points = 0;
+      this.collectedCoins = 0;
+      if (this.robot) this.robot.points = 0;
+      this.finalPrizeActivated = false;
+      this._finalCoinMade = false;
+      this.defeatTriggered = false;
+      this.finalPrizeCollected = false;
+      this.collectedChests = 0;
 
-        // --- RESTART DYNAMIC SPAWNERS (tu lógica) ---
-        const initialEnemies = 1;
-        this.spawnEnemies(initialEnemies);
+      // --- NUEVO: Ajustar meta de cofres por nivel ---
+      if (level == 3) {
+          this.chestGoal = 10;
+          if(this.debug) console.log(`loadLevel: Meta de cofres para Nivel 3 establecida en ${this.chestGoal}`);
+      } else if (level == 2) {
+          this.chestGoal = 3;
+          if(this.debug) console.log(`loadLevel: Meta de cofres para Nivel 2 establecida en ${this.chestGoal}`);
+      } else {
+          this.chestGoal = 0; // Nivel 1 no usa cofres
+      }
+      // --- FIN NUEVO ---
 
-        if (this.ghostSpeedInterval) clearInterval(this.ghostSpeedInterval);
-        this.ghostSpeedInterval = setInterval(() => {
-            this.increaseGhostSpeed(1.3)
-        }, 20000);
+      this._updateUI(); // Pone contadores a 0/meta correcta en la UI
 
-        if (this.coinSpawnInterval) clearInterval(this.coinSpawnInterval);
-        this.coinSpawnInterval = setInterval(() => {
-            this.spawnCoin(3)
-        }, 10000);
-        // --- FIN RESTART SPAWNERS ---
+
+      // 4. PROCESAR Y CARGAR BLOQUES DEL NIVEL
+      // ... (código de _processBlocks igual) ...
+      if (data.blocks && data.blocks.length > 0) { /* ... _processBlocks ... */ }
+
+
+      // 5. COLOCAR AL JUGADOR
+      this.resetRobotPosition(spawnPoint);
+      if (this.debug) console.log(`✅ Robot posicionado en spawn point:`, spawnPoint);
+
+
+      // 6. REINICIAR GENERADORES DINÁMICOS (Lógica por Nivel)
+      // Limpiar CUALQUIER intervalo anterior (ya se hace en clearCurrentScene)
+
+      if (level == 1) {
+          if (this.debug) console.log("loadLevel: Configurando spawners para Nivel 1 (Monedas y Fantasmas)");
+          // Iniciar spawners de Nivel 1
+          this.coinSpawnInterval = setInterval(() => { this.spawnCoin(3) }, 10000);
+          this.ghostSpawnInterval = setInterval(() => { this.spawnGhost() }, 30000);
+          this.ghostSpeedInterval = setInterval(() => { this.increaseGhostSpeed(1.3) }, 20000);
+          this.spawnEnemies(1); // Un enemigo inicial normal
+
+      } else if (level == 2) {
+          if (this.debug) console.log("loadLevel: Configurando spawners para Nivel 2 (3 Enemigos Rápidos)");
+          // No iniciar coin/ghost/speed intervals
+          this.spawnIntelligentEnemies(3, 1.8); // 3 enemigos, velocidad x1.8
+
+      } else if (level == 3) {
+          if (this.debug) console.log("loadLevel: Configurando spawners para Nivel 3 (5 Enemigos Muy Rápidos)");
+          // No iniciar coin/ghost/speed intervals
+          this.spawnIntelligentEnemies(5, 2.5); // 5 enemigos, velocidad x2.5
+
+      } else {
+           if (this.debug) console.log(`loadLevel: No hay configuración de spawners para Nivel ${level}`);
+           // No hacer nada o spawnear enemigos básicos si se quiere
+           // this.spawnEnemies(1);
+      }
+
+      this.gameStarted = true;
+      if (this.debug) console.log(`--- Nivel ${level} cargado exitosamente ---`);
+
 
     } catch (error) {
-        console.error('❌ Error cargando nivel:', error);
+      console.error(`❌ Error MUY GRAVE cargando nivel ${level}:`, error);
     }
   }
 
