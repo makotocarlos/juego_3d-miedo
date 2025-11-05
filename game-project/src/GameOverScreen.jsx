@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import './GameOverScreen.css';
 
-const GameOverScreen = ({ score, level, onPlayAgain, onShowLeaderboard, onLogout }) => {
+const GameOverScreen = ({ score, level, onPlayAgain, onShowLeaderboard, onLogout, offlineMode }) => {
     const [isNewRecord, setIsNewRecord] = useState(false);
-    const [saving, setSaving] = useState(true);
+    const [saving, setSaving] = useState(!offlineMode);
     const [leaderboard, setLeaderboard] = useState([]);
     const [showLeaderboard, setShowLeaderboard] = useState(false);
 
     useEffect(() => {
-        saveScore();
+        if (!offlineMode) {
+            saveScore();
+        }
     }, []);
 
     const saveScore = async () => {
@@ -69,8 +71,14 @@ const GameOverScreen = ({ score, level, onPlayAgain, onShowLeaderboard, onLogout
                 ) : (
                     <>
                         <h1 className="game-over-title">
-                            {isNewRecord ? '🎉 ¡Nuevo Récord!' : '🎮 Juego Terminado'}
+                            {offlineMode ? '🎮 Juego Terminado' : isNewRecord ? '🎉 ¡Nuevo Récord!' : '🎮 Juego Terminado'}
                         </h1>
+
+                        {offlineMode && (
+                            <div className="offline-warning">
+                                ⚠️ Modo Sin Conexión - El puntaje no se guardó
+                            </div>
+                        )}
 
                         <div className="game-over-stats">
                             <div className="stat-item">
@@ -83,7 +91,7 @@ const GameOverScreen = ({ score, level, onPlayAgain, onShowLeaderboard, onLogout
                             </div>
                         </div>
 
-                        {isNewRecord && (
+                        {!offlineMode && isNewRecord && (
                             <div className="new-record-badge">
                                 ⭐ ¡Has superado tu mejor puntaje! ⭐
                             </div>
@@ -94,12 +102,21 @@ const GameOverScreen = ({ score, level, onPlayAgain, onShowLeaderboard, onLogout
                                 <button className="game-over-btn primary" onClick={onPlayAgain}>
                                     🔄 Jugar de Nuevo
                                 </button>
-                                <button className="game-over-btn secondary" onClick={loadLeaderboard}>
-                                    🏆 Ver Clasificación
-                                </button>
-                                <button className="game-over-btn tertiary" onClick={onLogout}>
-                                    🚪 Cerrar Sesión
-                                </button>
+                                {!offlineMode && (
+                                    <>
+                                        <button className="game-over-btn secondary" onClick={loadLeaderboard}>
+                                            🏆 Ver Clasificación
+                                        </button>
+                                        <button className="game-over-btn tertiary" onClick={onLogout}>
+                                            🚪 Cerrar Sesión
+                                        </button>
+                                    </>
+                                )}
+                                {offlineMode && (
+                                    <button className="game-over-btn tertiary" onClick={() => window.location.reload()}>
+                                        🚪 Volver al Inicio
+                                    </button>
+                                )}
                             </div>
                         ) : (
                             <>

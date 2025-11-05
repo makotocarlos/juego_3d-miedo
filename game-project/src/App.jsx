@@ -11,6 +11,7 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userData, setUserData] = useState(null)
   const [checkingAuth, setCheckingAuth] = useState(true)
+  const [offlineMode, setOfflineMode] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [finalScore, setFinalScore] = useState(0)
   const [finalLevel, setFinalLevel] = useState(1)
@@ -91,6 +92,18 @@ const App = () => {
     setIsAuthenticated(true)
   }
 
+  const handlePlayOffline = () => {
+    console.log('🎮 Modo offline activado')
+    setOfflineMode(true)
+    setIsAuthenticated(true)
+    setUserData({ 
+      name: 'Invitado', 
+      isOffline: true,
+      highestScore: 0 
+    })
+    setCheckingAuth(false)
+  }
+
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('userName')
@@ -128,7 +141,12 @@ const App = () => {
 
   // Mostrar pantalla de login si no está autenticado
   if (!isAuthenticated) {
-    return <AuthScreen onAuthSuccess={handleAuthSuccess} />
+    return (
+      <AuthScreen 
+        onAuthSuccess={handleAuthSuccess} 
+        onPlayOffline={handlePlayOffline}
+      />
+    )
   }
 
   return (
@@ -160,6 +178,7 @@ const App = () => {
           level={finalLevel}
           onPlayAgain={handlePlayAgain}
           onLogout={handleLogout}
+          offlineMode={offlineMode}
         />
       )}
       

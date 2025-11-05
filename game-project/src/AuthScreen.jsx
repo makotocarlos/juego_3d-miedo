@@ -3,7 +3,7 @@ import './AuthScreen.css';
 
 const API_URL = 'http://localhost:3001/api';
 
-const AuthScreen = ({ onAuthSuccess }) => {
+const AuthScreen = ({ onAuthSuccess, onPlayOffline }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -232,6 +232,23 @@ const AuthScreen = ({ onAuthSuccess }) => {
                         </p>
                     </form>
                 )}
+
+                <div className="offline-section">
+                    <div className="divider">
+                        <span>o</span>
+                    </div>
+                    <button 
+                        type="button" 
+                        className="offline-button"
+                        onClick={onPlayOffline}
+                        disabled={loading}
+                    >
+                        🎮 Jugar sin conexión
+                    </button>
+                    <p className="offline-info">
+                        ⚠️ Sin conexión no se guardarán tus puntajes
+                    </p>
+                </div>
             </div>
         </div>
     );

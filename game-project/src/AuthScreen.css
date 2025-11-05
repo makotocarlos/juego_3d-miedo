@@ -192,6 +192,68 @@
     margin-top: 10px;
 }
 
+/* Offline Section */
+.offline-section {
+    margin-top: 30px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+}
+
+.divider span {
+    padding: 0 15px;
+    color: #999;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.offline-button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.offline-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+}
+
+.offline-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.offline-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.offline-info {
+    text-align: center;
+    color: #ff9800;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .auth-container {
@@ -208,6 +270,11 @@
     }
 
     .auth-tab {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+
+    .offline-button {
         padding: 12px;
         font-size: 0.95rem;
     }
