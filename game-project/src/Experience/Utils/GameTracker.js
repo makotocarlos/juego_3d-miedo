@@ -56,7 +56,24 @@ export default class GameTracker {
     //Modal de fin de juego
     showEndGameModal(currentTime) {
         const best = this.getBestTimes()
+        
+        // 🎮 Obtener datos del juego para el sistema de puntajes
+        const experience = window.experience
+        const coins = experience?.world?.menu?.coins || 0
+        const level = experience?.world?.levelManager?.currentLevel || 1
         const ranking = best.map((t, i) => `#${i + 1}: ${t}s`).join('\n')
+
+        // 🔥 Disparar evento personalizado para React (sistema de puntajes)
+        window.dispatchEvent(new CustomEvent('game-over', {
+            detail: {
+                score: coins,      // Monedas recolectadas como puntaje
+                level: level,      // Nivel alcanzado
+                time: currentTime, // Tiempo transcurrido
+                coins: coins       // Monedas específicas
+            }
+        }))
+        
+        console.log('🎮 Game Over disparado:', { coins, level, time: currentTime })
 
         if (!this.modal || typeof this.modal.show !== 'function') {
             console.warn('⚠️ No se puede mostrar el modal de fin: modal no definido.')
@@ -65,7 +82,7 @@ export default class GameTracker {
 
         this.modal.show({
             icon: '🏁',
-            message: `¡Felicidades!\nTerminaste la partida.\n⏱ Tu tiempo: ${currentTime}s\n\n🏆 Mejores tiempos:\n${ranking}`,
+            message: `¡Felicidades!\nTerminaste la partida.\n💰 Monedas: ${coins}\n⏱ Tiempo: ${currentTime}s\n\n🏆 Mejores tiempos:\n${ranking}`,
             buttons: [
                 {
                     text: '🔁 Reintentar',

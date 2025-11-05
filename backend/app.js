@@ -1,9 +1,11 @@
-require('dotenv').config()
+const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '.env') })
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const blockRoutes = require('./routes/blockRoutes')
-
+const authRoutes = require('./routes/authRoutes')
+const scoreRoutes = require('./routes/scoreRoutes')
 
 const app = express()
 const port = process.env.PORT || 3001
@@ -13,15 +15,21 @@ app.use(express.json())
 
 app.get('/', (req, res) => {
     res.send(`
-        <h1>API de bloques</h1>
-        <p>Usa la ruta /blocks para interactuar con los bloques.</p>
-        <p>Ejemplo de uso en el puerto ${port}:</p>
+        <h1>API del Juego 3D</h1>
+        <p>Rutas disponibles:</p>
+        <ul>
+            <li>/api/blocks - Gestión de bloques</li>
+            <li>/api/auth - Autenticación (registro/login)</li>
+            <li>/api/scores - Gestión de puntajes</li>
+        </ul>
+        <p>Servidor corriendo en el puerto ${port}</p>
         `)
 });
 
 // Rutas
-//app.use('/blocks', blockRoutes)
 app.use('/api/blocks', blockRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api/scores', scoreRoutes)
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
