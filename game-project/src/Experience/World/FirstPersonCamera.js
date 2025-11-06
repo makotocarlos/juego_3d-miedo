@@ -24,8 +24,11 @@ export default class FirstPersonCamera {
             .add(this.offset)
             .add(direction.clone().multiplyScalar(0.2)) // un poco hacia adelante
 
-        // Posicionar la cámara
-        this.camera.position.lerp(cameraPosition, 0.3)
+    // Posicionar la cámara
+    // Si estamos en el nivel 1, hacer el seguimiento más lento (menor lerp) para "reducir la velocidad de la cámara".
+    const currentLevel = this.experience.world?.levelManager?.currentLevel || 0
+    const lerpSpeed = (currentLevel === 1) ? 0.12 : 0.3
+    this.camera.position.lerp(cameraPosition, lerpSpeed)
 
         // Mirar hacia adelante en la misma dirección que el robot
         const lookAt = basePosition.clone().add(direction)

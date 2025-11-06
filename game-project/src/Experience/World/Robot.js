@@ -14,6 +14,9 @@ export default class Robot {
         this.debug = this.experience.debug || false
         this.points = 0
 
+    // Estado de sprint (true mientras Shift esté pulsado)
+    this._sprinting = false
+
         // Configurables
         this.bodyRadius = 0.4
         this.groundCheckMargin = 0.12
@@ -144,6 +147,22 @@ export default class Robot {
         if (runClip) this.animation.actions.run = this.animation.mixer.clipAction(runClip)
         if (attackClip) this.animation.actions.attack = this.animation.mixer.clipAction(attackClip)
 
+        // Asegurarnos que la animación de 'run' esté en loop (no termine sola) y que dure un poco más
+        if (this.animation.actions.run) {
+            try {
+                // Forzamos loop repetido para que el mixer no dispare 'finished' sobre run
+                // y pedimos muchas repeticiones (segunda arg) por si la implementación lo usa
+                this.animation.actions.run.setLoop(THREE.LoopRepeat, Infinity)
+            } catch (e) {
+                // fallback si la API no acepta repetitions
+                try { this.animation.actions.run.setLoop(THREE.LoopRepeat) } catch (err) { this.animation.actions.run.loop = THREE.LoopRepeat }
+            }
+            this.animation.actions.run.clampWhenFinished = false
+            this.animation.actions.run.enabled = true
+            // Reducir la velocidad de reproducción para que cada ciclo dure más (0.6-0.8 es razonable)
+            try { this.animation.actions.run.setEffectiveTimeScale(0.7) } catch (e) { this.animation.actions.run.timeScale = 0.7 }
+        }
+
         // Configuraciones seguras por cada action (no reset global)
         for (const name in this.animation.actions) {
             const act = this.animation.actions[name]
@@ -248,6 +267,24 @@ export default class Robot {
                 console.log('Robot.mixer finished:', finishedAction._clip ? finishedAction._clip.name : finishedAction)
             }
 
+            // Si terminó 'run' pero la tecla de sprint sigue pulsada -> reiniciamos run
+            if (finishedAction === this.animation.actions.run) {
+                try {
+                    const keys = this.keyboard.getState()
+                    const sprintNow = !!(
+                        keys.shift || keys.shiftLeft || keys.shiftRight || keys.shiftKey || keys.Shift
+                    )
+                    if (sprintNow || this._sprinting) {
+                        // Reiniciamos la acción de run inmediatamente para evitar fallbacks a idle/walk
+                        try { finishedAction.reset() } catch (e) {}
+                        try { finishedAction.play() } catch (e) {}
+                        return
+                    }
+                } catch (e) {
+                    // Si falla la comprobación, dejamos que el resto del handler actúe
+                }
+            }
+
             // Si terminó ataque -> volver a idle/walking
             if (finishedAction === this.animation.actions.attack) {
                 try { finishedAction.stop() } catch (e) {}
@@ -304,7 +341,9 @@ export default class Robot {
 
         const keys = this.keyboard.getState()
         const baseMoveForce = 300
-        const turnSpeed = 5.5
+    // Reducir la velocidad de giro si estamos en el Nivel 1 (solo afecta giros)
+    const currentLevel = this.experience.world?.levelManager?.currentLevel || 0
+    const turnSpeed = (currentLevel === 1) ? 3.0 : 5.5
         let isMoving = false
 
         const sprintPressed = !!(
@@ -314,6 +353,9 @@ export default class Robot {
             keys.shiftKey ||
             keys.Shift
         )
+
+        // Actualizamos estado interno de sprint para poder usarlo fuera del scope local
+        this._sprinting = sprintPressed
 
         const currentMultiplier = sprintPressed ? this.sprintMultiplier : 1.0
 
