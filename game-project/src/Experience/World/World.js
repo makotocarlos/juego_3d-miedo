@@ -65,8 +65,8 @@ export default class World {
 			// Empezar con las monedas (siempre visibles)
 			let status = `🪙 Monedas: ${this.collectedCoins}`;
 
-			// Añadir cofres SOLO si estamos en el nivel 2 (usar '==' por si acaso)
-			if (this.levelManager.currentLevel == 2) {
+			// Añadir cofres si estamos en el nivel 2 o 3
+			if (this.levelManager.currentLevel == 2 || this.levelManager.currentLevel == 3) {
 				status += ` | 📦 Cofres: ${this.collectedChests} / ${this.chestGoal}`;
 			}
 
