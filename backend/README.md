@@ -64,29 +64,75 @@ El backend aplica el patrón **MVC**, organizado de la siguiente manera:
    npm install
    ```
 
-3. Crear archivo `.env` y agregar la variable de conexión:
-   ```
-   MONGO_URI=mongodb+srv://<usuario>:<contraseña>@<cluster>.mongodb.net/<db>
+3. Crear archivo `.env` y agregar las variables de entorno:
+   ```bash
+   # Puerto del servidor
+   PORT=3001
+
+   # MongoDB URI
+   MONGO_URI=mongodb://127.0.0.1:27017/threejs_blocks
+
+   # JWT Secret (cambia esto por una clave secreta segura)
+   JWT_SECRET=no_olvidar_la_clave
+
    ```
 
-4. Ejecutar servidor:
+4. Inicializar la base de datos con los bloques:
+   ```bash
+   node scripts/init_database.js
+   ```
+
+5. Verificar que los datos se cargaron correctamente:
+   ```bash
+   node scripts/verify_database.js
+   ```
+
+6. Ejecutar servidor:
    ```bash
    node app.js
    ```
 
-5. (Opcional) Insertar datos iniciales:
-   ```bash
-   node seed.js
-   ```
+---
+
+## � Scripts Disponibles
+
+### Inicialización de Base de Datos
+
+```bash
+node scripts/init_database.js
+```
+Limpia la base de datos y carga todos los bloques desde los archivos JSON en `data/`.
+- Carga `toy_car_blocks.json` (Nivel 1: 196 bloques)
+- Carga `toy_car_blocks2.json` (Nivel 2: 373 bloques)
+- Carga `toy_car_blocks3.json` (Nivel 3: 533 bloques)
+- **Total: 1102 bloques**
+
+### Verificación de Base de Datos
+
+```bash
+node scripts/verify_database.js
+```
+Muestra estadísticas de la base de datos:
+- Cantidad de bloques por nivel
+- Total de bloques
+- Ejemplos de bloques almacenados
+
+### Sincronización Individual
+
+```bash
+node scripts/sync_blocks.js
+```
+Sincroniza archivos JSON específicos mediante la API REST.
 
 ---
 
-## 📦 Conexión con el Frontend
+## �📦 Conexión con el Frontend
 
 El frontend 3D desarrollado en React + Three.js se comunica con esta API para:
 
 - Renderizar bloques en el espacio 3D a partir de los datos consultados
 - Permitir al usuario agregar nuevos bloques que se guardan en MongoDB
+- Gestionar múltiples niveles del juego
 
 ---
 
@@ -338,13 +384,25 @@ En `generate_sources.js`:
 - El script de Blender ya hace este ajuste automáticamente.
 
 ---
-# Backend
-MONGO_URI=mongodb://127.0.0.1:27017/threejs_blocks
-PORT=3001
-API_URL=http://192.168.20.9:3001/api/blocks/batch
+## 📝 Configuración de Variables de Entorno
 
-# Frontend
+El archivo `.env` debe contener:
+
+```bash
+# Puerto del servidor
+PORT=3001
+
+# MongoDB URI
+MONGO_URI=mongodb://127.0.0.1:27017/threejs_blocks
+
+# JWT Secret (cambia esto por una clave secreta segura)
+JWT_SECRET=tu_clave_secreta_muy_segura_aqui_cambiala
+```
+
+**Nota:** Para el frontend en `game-project`, crear un archivo `.env` con:
+```bash
 VITE_API_URL=http://localhost:3001
+```
 
 
 
