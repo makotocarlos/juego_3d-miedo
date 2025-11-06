@@ -56,11 +56,45 @@ export default class ThirdPersonCamera {
             basePosition.z + direction.z * this.offset.z
         )
 
-        // Suavizar el movimiento
-        this.camera.position.lerp(cameraPosition, 0.15)
+        // Evitar que la cámara atraviese objetos: raycast desde la 'cabeza' del robot hacia la posición deseada
+        try {
+            const head = basePosition.clone().add(new THREE.Vector3(0, 1.5 * this.zoomLevel, 0))
+            const desired = cameraPosition.clone()
+            const rayDir = desired.clone().sub(head).normalize()
+            const maxDist = desired.distanceTo(head)
 
-        // Enfocar al centro del robot
-        const lookAt = basePosition.clone().add(new THREE.Vector3(0, 1.5 * this.zoomLevel, 0))
-        this.camera.lookAt(lookAt)
+            const raycaster = new THREE.Raycaster(head, rayDir, 0.05, maxDist)
+            const intersects = raycaster.intersectObjects(this.experience.scene.children, true)
+
+            const valid = intersects.filter(i => {
+                let obj = i.object
+                while (obj) {
+                    if (obj === this.target) return false
+                    obj = obj.parent
+                }
+                return true
+            })
+
+            let finalPos = desired
+            if (valid.length > 0) {
+                const hit = valid[0]
+                const backOff = rayDir.clone().multiplyScalar(-0.18)
+                finalPos = hit.point.clone().add(backOff)
+            }
+
+            // Suavizar el movimiento; hacer más lento en Nivel 1 para un seguimiento más suave
+            const currentLevel = this.experience.world?.levelManager?.currentLevel || 0
+            const lerpSpeed = (currentLevel === 1) ? 0.08 : 0.15
+            this.camera.position.lerp(finalPos, lerpSpeed)
+
+            // Enfocar al centro del robot
+            const lookAt = basePosition.clone().add(new THREE.Vector3(0, 1.5 * this.zoomLevel, 0))
+            this.camera.lookAt(lookAt)
+        } catch (e) {
+            // Fallback seguro
+            this.camera.position.lerp(cameraPosition, 0.15)
+            const lookAt = basePosition.clone().add(new THREE.Vector3(0, 1.5 * this.zoomLevel, 0))
+            this.camera.lookAt(lookAt)
+        }
     }
 }
