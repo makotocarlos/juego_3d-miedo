@@ -168,8 +168,8 @@ export default class World {
 		this.enemies = [];
 
 		const playerPos = this.robot.body.position;
-		const minRadius = 25;
-		const maxRadius = 40;
+		const minRadius = 15;
+		const maxRadius = 30;
 		for (let i = 0; i < count; i++) {
 			const angle = Math.random() * Math.PI * 2;
 			const radius = minRadius + Math.random() * (maxRadius - minRadius);
@@ -203,8 +203,8 @@ export default class World {
     this.enemies = [];
 
     const playerPos = this.robot.body.position;
-    const minRadius = 5; // Un poco más lejos para empezar
-    const maxRadius = 10;
+    const minRadius = 10; // x2 del original (era 5)
+    const maxRadius = 20; // x2 del original (era 10)
     const defaultSpeed = 5.0; // Define una velocidad base si Enemy.js no la tiene
 
     for (let i = 0; i < count; i++) {
@@ -865,10 +865,10 @@ export default class World {
             this.spawnEnemies(1); // Enemigo inicial normal
         } else if (level == 2) {
             if (this.debug) console.log("loadLevel: Configurando spawners para Nivel 2 (3 Enemigos Rápidos)");
-            this.spawnIntelligentEnemies(3, 2.5); // 3 enemigos, velocidad x2.5
+            this.spawnIntelligentEnemies(3, 3.75); // 3 enemigos, velocidad x3.75 (2.5 * 1.5)
         } else if (level == 3) {
             if (this.debug) console.log("loadLevel: Configurando spawners para Nivel 3 (5 Enemigos Muy Rápidos)");
-            this.spawnIntelligentEnemies(5, 3.5); // 5 enemigos, velocidad x3.5
+            this.spawnIntelligentEnemies(5, 5.25); // 5 enemigos, velocidad x5.25 (3.5 * 1.5)
         } else {
              if (this.debug) console.log(`loadLevel: No hay configuración de spawners para Nivel ${level}`);
         }
