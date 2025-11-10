@@ -66,8 +66,10 @@ export default class Physics {
         try {
             this.world.step(fixedTimeStep, dt, maxSubSteps)
         } catch (err) {
+            // Suprimir warnings de Cannon (errores conocidos que no afectan el juego)
             if (err?.message?.includes('wakeUpAfterNarrowphase')) {
-                console.warn('⚠️ Cannon encontrado shape corrupto. Ignorado.')
+                // Silencioso: este error es común y no afecta el gameplay
+                return
             } else {
                 console.error('🚫 Cannon step error:', err)
             }

@@ -14,8 +14,8 @@ export default class Sound {
     async play() {
         // Verifica que el usuario haya interactuado antes de reproducir
         if (!window.userInteracted) {
+            // Esperar interacción de forma silenciosa (no mostrar warning cada vez)
             document.addEventListener('click', () => this.play(), { once: true })
-            console.warn('No se puede reproducir audio sin interacción del usuario.')
             return
         }
 
@@ -24,9 +24,8 @@ export default class Sound {
         if (ctx.state === 'suspended') {
             try {
                 await ctx.resume()
-                console.log('AudioContext reanudado desde Sound.js')
             } catch (e) {
-                console.warn('Audio suspendido. No se pudo reanudar todavía.', e)
+                // Silencioso: esperaremos a que el usuario interactúe más
                 return
             }
         }
@@ -39,13 +38,11 @@ export default class Sound {
             }
         } else {
             if (this._retryCount < this._maxRetries) {
-                console.warn('AudioContext aún no está activo. Reintento programado.')
+                // Reintento silencioso
                 this._retryCount++
                 setTimeout(() => {
                     this.play()
                 }, 500)
-            } else {
-                console.warn('Máximo número de intentos de reproducción alcanzado.')
             }
         }
     }
@@ -58,9 +55,8 @@ export default class Sound {
     setVolume(volume) {
         if (this.sound && typeof this.sound.volume === 'function') {
             this.sound.volume(volume)
-        } else {
-            console.warn('⚠️ No se pudo ajustar volumen: instancia inválida.')
         }
+        // Silencioso: no mostrar warning si falla ajustar volumen
     }
 
 }

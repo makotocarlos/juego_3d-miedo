@@ -803,13 +803,12 @@ export default class World {
             }
             data = await res.json();
             if (!data.blocks || data.blocks.length === 0) {
-                console.warn(`⚠️ API no devolvió bloques para el nivel ${level}. Forzando fallback a local.`);
                 throw new Error('API data vacía, usando fallback');
             }
             if (this.debug) console.log(`📦 Datos del nivel ${level} cargados desde API (${data.blocks.length} bloques).`);
         } catch (error) {
-            // Fallback a archivo local si falla la API
-            if (this.debug) console.warn(`⚠️ Usando datos locales para nivel ${level}... (${error.message})`);
+            // Fallback a archivo local si falla la API (silencioso, solo debug)
+            if (this.debug) console.log(`📁 Usando datos locales para nivel ${level}... (${error.message})`);
             const publicPath = (p) => {
                 const base = import.meta.env.BASE_URL || '/';
                 return `${base.replace(/\/$/, '')}/${p.replace(/^\//, '')}`;
@@ -819,7 +818,7 @@ export default class World {
             if (!localRes.ok) throw new Error(`No se pudo cargar ${localUrl} (HTTP ${localRes.status})`);
             const allBlocks = await localRes.json();
             const filteredBlocks = allBlocks.filter(b => b.level == level); // Usa == por si level es string/number
-            console.log(`📦 [LOAD_LEVEL] Cargando Nivel ${level} (local). ${filteredBlocks.length} bloques encontrados.`);
+            if (this.debug) console.log(`📦 [LOAD_LEVEL] Cargando Nivel ${level} (local). ${filteredBlocks.length} bloques encontrados.`);
             data = {
                 blocks: filteredBlocks,
                 spawnPoint: filteredBlocks.find(b => b.role === 'spawnPoint') // Busca spawn point en los datos filtrados
