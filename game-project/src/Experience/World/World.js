@@ -11,6 +11,7 @@ import AmbientSound from './AmbientSound.js';
 import MobileControls from '../../controls/MobileControls.js';
 import LevelManager from './LevelManager.js';
 import FinalPrizeParticles from '../Utils/FinalPrizeParticles.js';
+import PortalBeacon from '../Utils/PortalBeacon.js';
 import Enemy from './Enemy.js';
 import Coin from './Coin.js';
 import Prize from './Prize.js';
@@ -65,8 +66,8 @@ export default class World {
 			// Empezar con las monedas (siempre visibles)
 			let status = `🪙 Monedas: ${this.collectedCoins}`;
 
-			// Añadir cofres si estamos en el nivel 2 o 3
-			if (this.levelManager.currentLevel == 2 || this.levelManager.currentLevel == 3) {
+			// Añadir cofres SOLO si estamos en el nivel 2 (usar '==' por si acaso)
+			if (this.levelManager.currentLevel == 2) {
 				status += ` | 📦 Cofres: ${this.collectedChests} / ${this.chestGoal}`;
 			}
 
@@ -203,8 +204,8 @@ export default class World {
     this.enemies = [];
 
     const playerPos = this.robot.body.position;
-    const minRadius = 10; // x2 del original (era 5)
-    const maxRadius = 20; // x2 del original (era 10)
+    const minRadius = 5; // Un poco más lejos para empezar
+    const maxRadius = 10;
     const defaultSpeed = 5.0; // Define una velocidad base si Enemy.js no la tiene
 
     for (let i = 0; i < count; i++) {
@@ -318,12 +319,34 @@ export default class World {
 				if (this.debug) console.warn('No se pudo crear FinalPrizeParticles', e);
 			}
 
+			// Crear haz de luz SOLO en el Nivel 1 (mapa grande)
+			if (this.levelManager.currentLevel === 1) {
+				try {
+					this.portalBeacon = new PortalBeacon({
+						scene: this.scene,
+						position: pos,
+						experience: this.experience,
+						color: 0x00ffff // Color cyan brillante
+					});
+					if (this.debug) console.log('✨ Haz de luz del portal creado en Nivel 1');
+				} catch (e) {
+					if (this.debug) console.warn('No se pudo crear PortalBeacon', e);
+				}
+			}
+
 			// Lógica para pasar de nivel al recoger el portal
 			prize.onCollect = async (collectedPrize) => {
 				if (this.isLoadingLevel) return;
 				try {
 					if (collectedPrize.role === "finalPrize") {
 						this.isLoadingLevel = true;
+						
+						// Limpiar el haz de luz cuando se recoge el portal
+						if (this.portalBeacon) {
+							this.portalBeacon.dispose();
+							this.portalBeacon = null;
+						}
+						
 						await this._goToNextLevel();
 						this.isLoadingLevel = false;
 					}
@@ -671,6 +694,18 @@ export default class World {
 			this.finalPrizes.forEach(p => { try { p.destroy?.() } catch (e) {} });
 			this.finalPrizes = [];
 		}
+		
+		// Limpiar haz de luz del portal si existe
+		if (this.portalBeacon) {
+			try {
+				this.portalBeacon.dispose();
+				this.portalBeacon = null;
+				if (this.debug) console.log('🔦 Haz de luz del portal eliminado');
+			} catch (e) {
+				if (this.debug) console.warn('Error al limpiar PortalBeacon', e);
+			}
+		}
+		
 		// Limpiar cofres/premios del loader
 		if (this.loader && this.loader.prizes && this.loader.prizes.length > 0) {
 			this.loader.prizes.forEach(prize => {
@@ -865,10 +900,10 @@ export default class World {
             this.spawnEnemies(1); // Enemigo inicial normal
         } else if (level == 2) {
             if (this.debug) console.log("loadLevel: Configurando spawners para Nivel 2 (3 Enemigos Rápidos)");
-            this.spawnIntelligentEnemies(3, 3.75); // 3 enemigos, velocidad x3.75 (2.5 * 1.5)
+            this.spawnIntelligentEnemies(3, 2.5); // 3 enemigos, velocidad x2.5
         } else if (level == 3) {
             if (this.debug) console.log("loadLevel: Configurando spawners para Nivel 3 (5 Enemigos Muy Rápidos)");
-            this.spawnIntelligentEnemies(5, 5.25); // 5 enemigos, velocidad x5.25 (3.5 * 1.5)
+            this.spawnIntelligentEnemies(5, 3.5); // 5 enemigos, velocidad x3.5
         } else {
              if (this.debug) console.log(`loadLevel: No hay configuración de spawners para Nivel ${level}`);
         }

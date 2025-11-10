@@ -18,11 +18,7 @@ const registerValidation = [
         .normalizeEmail(),
     body('password')
         .notEmpty().withMessage('La contraseña es requerida')
-        .isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres')
-        .matches(/[0-9]/).withMessage('La contraseña debe incluir al menos un número')
-        .matches(/[a-z]/).withMessage('La contraseña debe incluir al menos una letra minúscula')
-        .matches(/[A-Z]/).withMessage('La contraseña debe incluir al menos una letra mayúscula')
-        .matches(/[!@#$%^&*(),.?":{}|<>]/).withMessage('La contraseña debe incluir al menos un símbolo (!@#$%^&*(),.?":{}|<>)')
+        .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
 ];
 
 // Validaciones para login
